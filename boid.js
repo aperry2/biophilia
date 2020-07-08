@@ -1,16 +1,29 @@
 class Boid {
-  constructor(x, y) {
+  constructor(x, y, comName) { // pass information derived from eBird API pull here, only x,y coordinates for now
     // physics information
-    this.position = createVector(x, y);
-    this.velocity = p5.Vector.random2D();
-    this.velocity.setMag(random(2, 4));
-    this.acceleration = createVector();
-    this.maxForce = 0.2;
-    this.maxSpeed = 2;
+    // ===================
+    this.position = createVector(x, y); // this is the position on the screen relative to the center of the canvas
+    this.velocity = p5.Vector.random2D(); // random 2D velocity direction for movement
+    this.velocity.setMag(random(2, 4)); // magnitude of velocity between 2-4 (?)
+    this.acceleration = createVector(); // empty acceleration vector
+    this.maxForce = 0.3; // maximum force the boid has in the physics engine
+    this.maxSpeed = 2; // maximum speed the boid has (longer migration = faster speed?)
 
-    // species information
-    this.name = "default";
-    this.radius = 8.0;
+    // physics info associated with behavior
+    // =====================================
+    // this.alignmentWeight   // how important traveling in the same direction as flockmates is to this boid/species
+    // this.cohesionWeight    // how important staying with others is to this boid/species
+    // this.separationWeight  // how important keeping distant from others is to this boid/species
+
+    // "species" information
+    // =====================
+    this.name = comName; // name - scientific? common? default for now
+    this.radius = 3.0; //  size of representation (circle, arrowhead, etc.)
+
+    // other variables to potentially use
+    // ==================================
+    this.c = color(random(255), random(255), random(255)); // associate with ecology/diet
+    this.perceptionRadius = 25; // how far the boid/species "sees" in 360 degrees
   }
 
   edges() {
@@ -27,12 +40,11 @@ class Boid {
   }
 
   align(boids) {
-    let perceptionRadius = 50;
     let total = 0;
     let steering = createVector();
     for (let other of boids) {
       let d = dist(this.position.x, this.position.y, other.position.x, other.position.y);
-      if (other != this && d < perceptionRadius) { 
+      if (other != this && d < this.perceptionRadius) { 
         steering.add(other.velocity);
         total++;
       }
@@ -47,12 +59,11 @@ class Boid {
   }
 
   separation(boids) {
-    let perceptionRadius = 50;
     let total = 0;
     let steering = createVector();
     for (let other of boids) {
       let d = dist(this.position.x, this.position.y, other.position.x, other.position.y);
-      if (other != this && d < perceptionRadius) { 
+      if (other != this && d < this.perceptionRadius) { 
         let diff = p5.Vector.sub(this.position, other.position);
         diff.div(d);
         steering.add(diff);
@@ -70,12 +81,11 @@ class Boid {
 
 
   cohesion(boids) {
-    let perceptionRadius = 50;
     let total = 0;
     let steering = createVector();
     for (let other of boids) {
       let d = dist(this.position.x, this.position.y, other.position.x, other.position.y);
-      if (other != this && d < perceptionRadius) { 
+      if (other != this && d < this.perceptionRadius) { 
         steering.add(other.position);
         total++;
       }
@@ -94,6 +104,10 @@ class Boid {
     let alignment = this.align(boids);
     let cohesion = this.cohesion(boids);
     let separation = this.separation(boids);
+    
+    alignment.mult(0.7);
+    cohesion.mult(0.6);
+    separation.mult(1.0);
 
     this.acceleration.add(alignment);
     this.acceleration.add(cohesion);
@@ -109,7 +123,21 @@ class Boid {
 
   show() {
     strokeWeight(this.radius);
-    stroke(255, 0, 0);
-    point(this.position.x, this.position.y);
+    fill(this.c);
+
+    push();
+    translate(this.position.x, this.position.y);
+    
+    textAlign(CENTER);
+    text(this.name, 0, - 10);
+    
+    let theta = this.velocity.heading() + PI/2;
+    rotate(theta);
+    beginShape();
+    vertex(0, -this.radius*2);
+    vertex(-this.radius, this.radius*2);
+    vertex(this.radius, this.radius*2);
+    endShape();
+    pop();
   }
 }
