@@ -7,8 +7,8 @@ var obs;
 // cricket hill: 41.964344, -87.641992
 // berthoud: 40.3083, -105.0811
 
-var clat = 40.3083;
-var clon = -105.0811;
+var clat = 41.964344;
+var clon = -87.641992;
 
 var zoom = 9.5;
 
@@ -52,18 +52,16 @@ function setup() {
 
     fill(birdMag * 10, 0, 255, 160);
     ellipse(x, y, 5 + birdMag, 5 + birdMag);
+    
+    flock.push(new Boid(x, y));
   }
-
+  
+  console.log("# of boids: " + flock.length);
   /*
-  var x = mercX(lon) - cx;
-   var y = mercY(lat) - cy;
-   
-   fill(255, 0, 255, 200);
-   ellipse(x, y, 10, 10);
-   */
   for (let i = 0; i < 100; i++) {
-    flock.push(new Boid());
+    flock.push(new Boid(0, 0));
   }
+  */
 }
 
 function drawMapData() {
