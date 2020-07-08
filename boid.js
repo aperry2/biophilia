@@ -1,12 +1,12 @@
 class Boid {
-  constructor() {
+  constructor(x, y) {
     // physics information
-    this.position = createVector(random(-width/2, width/2), random(-height/2, height/2));
+    this.position = createVector(x, y);
     this.velocity = p5.Vector.random2D();
     this.velocity.setMag(random(2, 4));
     this.acceleration = createVector();
-    this.maxForce = 10;
-    this.maxSpeed = 4;
+    this.maxForce = 0.2;
+    this.maxSpeed = 2;
 
     // species information
     this.name = "default";
